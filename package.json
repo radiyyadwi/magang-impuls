@@ -1,0 +1,19 @@
+{
+  "name": "impuls.id",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "author": "impuls.id",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "mongodb": "^2.2.29",
+    "nodemon": "^1.11.0",
+    "postman": "^0.2.0"
+  }
+}
