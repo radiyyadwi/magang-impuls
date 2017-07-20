@@ -2,19 +2,22 @@ var express = require('express');
 var showQuestionRouter = express.Router();
 var mongoClient = require('mongodb').MongoClient
 
-shoQuestionRouter.route('/question')
-  .get('/' + questionId, function(req, res){
+showQuestionRouter.route('/question/:questionId')
+  .get(function(req, res){
       // show question with question id
       mongoClient.connect('mongodb://localhost:27017/impuls', function(err, db){
         if (err) throw err;
         else{
-          var data = db.question.find({ 'id' : questionId });
+          var data = db.question.find({ 'id' : req.params('questionId') });
           res.send('data showed');
           //res.render(data);
         };
       });
   });
-  .get('/' + questionId + '/postAnswer', function(req, res){
+
+
+showQuestionRouter.route('/question/:questionId/postAnswer')
+  .get(function(req, res){
     res.send('show answer form');
   });
 

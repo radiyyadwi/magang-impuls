@@ -7,6 +7,6 @@ postQuestionRouter.route('/post-answer')
     mongoClient.connect('mongodb://localhost:27017/impuls', function(err, db){
       if (err) throw err;
       else{
-        db.answer.insertOne({ 'id' : , 'date' : , vote})
+        db.answer.insertOne({ 'id' : , 'text' : req.body('answer-body'), 'images' : [req.body('image1')]})
       }
   })
