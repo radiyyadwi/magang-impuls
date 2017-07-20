@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var express = require('express');
 var postQuestRouter = express.Router();
 var mongoClient = require('mongodb').MongoClient;
@@ -14,8 +15,8 @@ postQuestRouter.route('/createPost/submit')
     console.log(req.body);
     mongoClient.connect(url, function (err, db) {
       let collection = db.collection('question');
-      var qtitle = req.body('title');
-      var qbody = req.body('question-body');
+      var qtitle =  _.get(req.body, ['title'], 'Isian Kosong');
+      var qbody = req.body.questionbody;
       const data = {'id' : 1, 'title' : qtitle, 'text' : qbody, 'answer_ids' : [], 'subject_ids' : [], 'chapter_ids' : [] };
         collection.insertOne(data, function (err, result) {
           res.send(result);
