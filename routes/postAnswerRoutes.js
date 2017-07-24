@@ -2,11 +2,13 @@ const express = require('express');
 let postAnswerRouter = express.Router();
 let mongoClient = require('mongodb').MongoClient;
 
-postQuestionRouter.route('/post-answer/submit')
-  .post( function(req, res) {
-    mongoClient.connect('mongodb://localhost:27017/impuls', function(err, db){
+postAnswerRouter.route('/post-answer/submit')
+  .post( function(req, res)
+    const dburl = 'mongodb://localhost:27017/impuls';
+    mongoClient.connect(dburl, function(err, db){
       if (err) throw err;
       else{
-        db.answer.insertOne({ 'id' : , 'text' : req.body.answerbody, 'images' : [req.body('image1')]})
+        let answer = db.collection('answer');
+        answer.insertOne({ 'text' : req.body.answerbody, 'images' : [req.body('image1')]})
       }
   })
