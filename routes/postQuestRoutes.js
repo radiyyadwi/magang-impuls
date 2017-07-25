@@ -19,7 +19,8 @@ postQuestRouter.route('/createPost/submit')
       var qbody = req.body.questionbody;
       const data = {'id' : 1, 'title' : qtitle, 'text' : qbody, 'answer_ids' : [], 'subject_ids' : [], 'chapter_ids' : [] };
         collection.insertOne(data, function (err, result) {
-          res.send(result);
+          res.send("question submitted");
+
           db.close();
         });
       });
