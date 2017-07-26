@@ -2,6 +2,8 @@ var _ = require('lodash');
 var express = require('express');
 var postQuestRouter = express.Router();
 var mongoClient = require('mongodb').MongoClient;
+var multer = require('multer');
+var upload = multer({ dest: 'uploads/' });
 
 
 postQuestRouter.route('/createPost')
@@ -32,7 +34,7 @@ postQuestRouter.route('/createPost')
             console.error("Only .png files are allowed!");
           });
         }
-        const data = {'id' : 1, 'title' : qtitle, 'text' : qbody,'image' : tempPath ,'answer_ids' : [], 'subject_ids' : [], 'chapter_ids' : [] };
+        const data = {'id' : 1, 'title' : qtitle, 'text' : qbody,'image' : targetPath ,'answer_ids' : [], 'subject_ids' : [], 'chapter_ids' : [] };
           collection.insertOne(data, function (err, result) {
             res.send("question submitted");
 
