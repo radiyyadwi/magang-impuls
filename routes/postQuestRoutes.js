@@ -29,8 +29,10 @@ postQuestRouter.route('/createPost/submit').post(upload.single('image'),function
           var question = dict.db.collection('question');
           var qtitle = _.get(req, ['body', 'title'], null);
           var qbody = _.get(req, ['body', 'questionbody'], null);
-          var targetPath = _.get(req,['file','path'], null)
-          const data = {'id' : 1, 'title' : qtitle, 'text' : qbody,'image' : targetPath ,'answer_ids' : [], 'subject_ids' : [], 'chapter_ids' : [] };
+          var targetPath = _.get(req,['file','path'], null);
+          const chptr = _.get(req,['body','chapter'],'');
+          const sbjct = _.get(req,['body','subject'],'');
+          const data = {'id' : 1, 'title' : qtitle, 'text' : qbody,'image' : targetPath ,'answer_ids' : [], 'subject_ids' : sbjct.split(', '), 'chapter_ids' : chptr.split(', ') };
           question.insertOne(data, function (err, result) {
           res.send({"status" : "question submitted",
                     "judul" : req.body.title,
