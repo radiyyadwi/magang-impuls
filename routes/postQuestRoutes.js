@@ -15,12 +15,14 @@ postQuestRouter.route('/createPost/submit')
     console.log(req.body);
     mongoClient.connect(url, function (err, db) {
       let collection = db.collection('question');
-      var qtitle =  _.get(req.body, ['title'], 'Isian Kosong');
-      var qbody = req.body.questionbody;
-      const data = {'id' : 1, 'title' : qtitle, 'text' : qbody, 'answer_ids' : [], 'subject_ids' : [], 'chapter_ids' : [] };
+      const qtitle =  _.get(req.body, ['title'], 'Isian Kosong');
+      const qbody = _.get(req.body, ['questionbody'], 'Isian Kosong');
+      const chptr = _.get(req.body, ['chapter'], ' ');
+      const sbjct = _.get(req.body, ['subject'], ' ');
+      const date = _.now();
+      const data = { title : qtitle, text : qbody, answer_ids : [], subject_ids : sbjct.split(', ') , chapter_ids : chptr.split(', ') , time : date };
         collection.insertOne(data, function (err, result) {
           res.send("question submitted");
-
           db.close();
         });
       });
