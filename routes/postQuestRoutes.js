@@ -26,27 +26,41 @@ postQuestRouter.route('/postQuestion/submit').post(upload.single('image'),functi
           });
         },
         (flowCallback)=> {
+          //url opened successfully
+          //insert the data
           var question = dict.db.collection('question');
+          dict.dbimage = dict.db.collection('image');
           var qtitle = _.get(req, ['body', 'title'], null);
           var qbody = _.get(req, ['body', 'questionbody'], null);
-          var targetPath = _.get(req,['file','path'], null);
           const chptr = _.get(req,['body','chapter'],'');
           const sbjct = _.get(req,['body','subject'],'');
-          const data = {'title' : qtitle, 'text' : qbody,'image' : targetPath ,'answer_ids' : [], 'subject_ids' : sbjct.split(', '), 'chapter_ids' : chptr.split(', ') };
-          question.insertOne(data, function (err, result) {
-          res.send({"status" : "question submitted",
-                    "judul" : req.body.title,
-                    "image" : req.file.originalname,
-                    "chapter" : req.body.chapter,
-                    "subject" : req.body.subject
-                  });
-          console.log(req.file);
-          console.log(req.body);
+          var targetPath = _.get(req,['file','path'], null);
+          var image_id = null;
+          if (targetPath!=null) {
+            //there is an image
+            dict.dbimage.insertOne({"path" : targetPath}, (err,dataimage) => {
+              if (err) {
+                image_id = null;
+              } else {
+                image_id = dataimage.insertedId;
+              }
+              console.log(image_id);
+              const data = {'title' : qtitle, 'text' : qbody,'image' : image_id ,'answer_ids' : [], 'subject_ids' : sbjct.split(', '), 'chapter_ids' : chptr.split(', ') };
+              question.insertOne(data, function (err, result) {
+              res.jsonp(result);
+              });
+            })
+          } else {
+            //there is no image
+            console.log(image_id);
+            const data = {'title' : qtitle, 'text' : qbody,'image' : image_id ,'answer_ids' : [], 'subject_ids' : sbjct.split(', '), 'chapter_ids' : chptr.split(', ') };
+            question.insertOne(data, function (err, result) {
+            res.jsonp(result);
+            });
+          }
           dict.db.close();
-          })
-        }
+          }
       ])
-
   });
 
 module.exports = postQuestRouter;
