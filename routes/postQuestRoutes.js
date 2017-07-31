@@ -28,7 +28,7 @@ postQuestRouter.route('/postQuestion/submit').post(upload.single('image'),functi
         (flowCallback)=> {
           //url opened successfully
           //insert the data
-          var question = dict.db.collection('question');
+          dict.dbquestion = dict.db.collection('question');
           dict.dbimage = dict.db.collection('image');
           var qtitle = _.get(req, ['body', 'title'], null);
           var qbody = _.get(req, ['body', 'questionbody'], null);
@@ -46,21 +46,39 @@ postQuestRouter.route('/postQuestion/submit').post(upload.single('image'),functi
               }
               console.log(image_id);
               const data = {'title' : qtitle, 'text' : qbody,'image' : image_id ,'answer_ids' : [], 'subject_ids' : sbjct.split(', '), 'chapter_ids' : chptr.split(', ') };
-              question.insertOne(data, function (err, result) {
-              res.jsonp(result);
+              dict.dbquestion.insertOne(data, (err, result) => {
+                if (err) return flowCallback(err);
+                return flowCallback();
               });
-            })
+            });
           } else {
             //there is no image
+            image_id = null;
             console.log(image_id);
             const data = {'title' : qtitle, 'text' : qbody,'image' : image_id ,'answer_ids' : [], 'subject_ids' : sbjct.split(', '), 'chapter_ids' : chptr.split(', ') };
-            question.insertOne(data, function (err, result) {
-            res.jsonp(result);
+            dict.dbquestion.insertOne(data, function (err, result) {
+              if (err) return flowCallback(err);
+              return flowCallback();
             });
           }
-          dict.db.close();
-          }
-      ])
-  });
+        }
+      ], (err, results) => {
+        !_.isNil(dict.db) && dict.db.close();
+        if (err) {
+          return res.status(400).json({
+            task: "Insert answer by question ID",
+            status: "FAILED",
+            message: err
+          });
+        } else {
+          return res.status(200).json({
+            task: "Insert answer by question ID",
+            status: "OK",
+            message: "Success",
+            data: { answer_id: dict.newId }
+          });
+        }
+      });
+    });
 
 module.exports = postQuestRouter;

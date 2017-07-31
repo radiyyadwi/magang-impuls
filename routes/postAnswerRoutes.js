@@ -42,20 +42,42 @@ postAnswerRouter.route('/question/:questionId/postAnswer').post(upload.single('i
       (flowCallback) => {
         dict.answer   = dict.db.collection('answer');
         dict.question = dict.db.collection('question');
-
+        dict.answer = dict.db.collection('answer');
+        dict.dbimage = dict.db.collection('image');
+        var text = req.body.text;
         dict.question.findOne({ _id : objectId(questionId)}, (error, results) => {
           if (error) return flowCallback(error);
           if (_.isNil(results)) {
             return flowCallback('Question not found');
           } else {
             var targetPath = _.get(req,['file','path'], null);
-            dict.answer.insertOne({ "text" : req.body.text, "image" : targetPath}, (err, data) => {
-              if (err) return flowCallback(err);
-              dict.newId = data.insertedId;
-              return flowCallback();
-            });
-          }
-        });
+            var image_id = null;
+            if (targetPath!=null) {
+              //there is an image
+              dict.dbimage.insertOne({"path" : targetPath}, (err,dataimage) => {
+                if (err) {
+                  image_id = null;
+                } else {
+                  image_id = dataimage.insertedId;
+                }
+                const data = {'text' : text,'image' : image_id};
+                dict.answer.insertOne(data, (err, result) => {
+                  if (err) return flowCallback(err);
+                  dict.newId = result.insertedId;
+                  return flowCallback();
+                });
+              });
+            } else {
+                //there is no image
+                const data = {'text' : text,'image' : image_id};
+                dict.answer.insertOne(data, (err, result) => {
+                  if (err) return flowCallback(err);
+                  dict.newId = result.insertedId;
+                  return flowCallback();
+                });
+              }
+            }
+          });
       },
       (flowCallback) => {
         dict.question.update({ _id : objectId(questionId) },{
