@@ -2,6 +2,7 @@ var _ = require('lodash');
 var express = require('express');
 var postQuestRouter = express.Router();
 var mongoClient = require('mongodb').MongoClient;
+const objectId = require('mongodb').ObjectId;
 const multer = require('multer');
 var path = require('path');
 const async = require('async');
@@ -13,7 +14,7 @@ postQuestRouter.route('/postQuestion')
     res.send("Send Form to user");
   });
 
-postQuestRouter.route('/postQuestion/submit').post(upload.single('image'),function (req, res){
+postQuestRouter.route('/postQuestion/submit').post(upload.array('image', 3),function (req, res){
       const dict = {};
       async.waterfall([
         //connect database
@@ -22,45 +23,37 @@ postQuestRouter.route('/postQuestion/submit').post(upload.single('image'),functi
           mongoClient.connect(url, function (err, db) {
             if (err) return flowCallback (err);
             dict.db = db;
+            dict.dbquestion = dict.db.collection('question');
+            dict.dbimage = dict.db.collection('image');
             return flowCallback();
           });
         },
         (flowCallback)=> {
+          dict.image_ids = [];
+          async.each(req.files, (item, next) => {
+            const img_path = _.get(item, ['path'], null);
+            if (_.isNil(img_path)) return next();
+            dict.dbimage.insertOne({"path" : img_path}, (err,dataimage) => {
+              if (err) return next(err);
+              image_id = dataimage.insertedId;
+              dict.image_ids.push(image_id);
+              return next();
+            });
+          }, flowCallback);
+        },
+        (flowCallback)=> {
           //url opened successfully
           //insert the data
-          dict.dbquestion = dict.db.collection('question');
-          dict.dbimage = dict.db.collection('image');
-          var qtitle = _.get(req, ['body', 'title'], null);
-          var qbody = _.get(req, ['body', 'questionbody'], null);
+          console.log(req.files);
+          const qtitle = _.get(req, ['body', 'title'], null);
+          const qbody = _.get(req, ['body', 'questionbody'], null);
           const chptr = _.get(req,['body','chapter'],'');
           const sbjct = _.get(req,['body','subject'],'');
-          var targetPath = _.get(req,['file','path'], null);
-          var image_id = null;
-          if (targetPath!=null) {
-            //there is an image
-            dict.dbimage.insertOne({"path" : targetPath}, (err,dataimage) => {
-              if (err) {
-                image_id = null;
-              } else {
-                image_id = dataimage.insertedId;
-              }
-              console.log(image_id);
-              const data = {'title' : qtitle, 'text' : qbody,'image' : image_id ,'answer_ids' : [], 'subject_ids' : sbjct.split(', '), 'chapter_ids' : chptr.split(', ') };
-              dict.dbquestion.insertOne(data, (err, result) => {
-                if (err) return flowCallback(err);
-                return flowCallback();
-              });
-            });
-          } else {
-            //there is no image
-            image_id = null;
-            console.log(image_id);
-            const data = {'title' : qtitle, 'text' : qbody,'image' : image_id ,'answer_ids' : [], 'subject_ids' : sbjct.split(', '), 'chapter_ids' : chptr.split(', ') };
-            dict.dbquestion.insertOne(data, function (err, result) {
-              if (err) return flowCallback(err);
-              return flowCallback();
-            });
-          }
+          const data = {'title' : qtitle, 'text' : qbody,'image_ids' : dict.image_ids,'answer_ids' : [], 'subject_ids' : sbjct.split(', '), 'chapter_ids' : chptr.split(', ') };
+          dict.dbquestion.insertOne(data, (err, result) => {
+            if (err) return flowCallback(err);
+            return flowCallback();
+          });
         }
       ], (err, results) => {
         !_.isNil(dict.db) && dict.db.close();
