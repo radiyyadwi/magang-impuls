@@ -1,8 +1,10 @@
 var _ = require('lodash');
 var express = require('express');
 var showQuestionRouter = express.Router();
-var mongoClient = require('mongodb').MongoClient;
-const objectId = require('mongodb').ObjectId;
+var mongoClient = require('mongodb').MongoClient
+const objectId = require('mongodb').ObjectId
+const isValidId = require('mongodb').ObjectId.isValid;
+const async = require('async');
 
 
 showQuestionRouter.route('/question/:questionId')
