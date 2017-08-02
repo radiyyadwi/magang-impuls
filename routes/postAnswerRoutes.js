@@ -1,7 +1,7 @@
-var _ = require('lodash');
+const _ = require('lodash');
 const express = require('express');
-let postAnswerRouter = express.Router();
-let mongoClient = require('mongodb').MongoClient;
+const postAnswerRouter = express.Router();
+const mongoClient = require('mongodb').MongoClient;
 const async = require('async');
 const objectId = require('mongodb').ObjectId;
 const isValidId = require('mongodb').ObjectId.isValid;
@@ -17,7 +17,6 @@ postAnswerRouter.route('/question/:questionId/postAnswer').post(upload.array('im
     async.waterfall([
       (flowCallback) => {
         if(_.isNil(questionId) || !(isValidId(questionId))) return flowCallback('Req data is invalid');
-        console.log(isValidId(questionId));
         return flowCallback(null);
       },
       (flowCallback) => {
@@ -98,16 +97,16 @@ postAnswerRouter.route('/question/:questionId/postAnswer').post(upload.array('im
       !_.isNil(dict.db) && dict.db.close();
       if (err) {
         return res.status(400).json({
-          task: "Insert answer by question ID",
-          status: "FAILED",
-          message: err
+          task    : "Insert answer by question ID",
+          status  : "FAILED",
+          message : err
         });
       } else {
         return res.status(200).json({
-          task: "Insert answer by question ID",
-          status: "OK",
-          message: "Success",
-          data: { answer_id: dict.newId }
+          task    : "Insert answer by question ID",
+          status  : "OK",
+          message : "Success",
+          data    : { answer_id: dict.newId }
         });
       }
     });
