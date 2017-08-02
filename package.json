@@ -12,6 +12,7 @@
   "dependencies": {
     "async": "^2.5.0",
     "body-parser": "^1.17.2",
+    "email-validator": "^1.1.1",
     "express": "^4.15.3",
     "lodash": "^4.17.4",
     "mongodb": "^2.2.29",
