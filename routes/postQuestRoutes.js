@@ -52,6 +52,7 @@ postQuestRouter.route('/postQuestion/submit').post(upload.array('image', 3),func
           const data = {'title' : qtitle, 'text' : qbody,'image_ids' : dict.image_ids,'answer_ids' : [], 'subject_ids' : sbjct.split(', '), 'chapter_ids' : chptr.split(', ') };
           dict.dbquestion.insertOne(data, (err, result) => {
             if (err) return flowCallback(err);
+            dict.questionid = result.insertedId;
             return flowCallback();
           });
         }
@@ -59,16 +60,16 @@ postQuestRouter.route('/postQuestion/submit').post(upload.array('image', 3),func
         !_.isNil(dict.db) && dict.db.close();
         if (err) {
           return res.status(400).json({
-            task: "Insert answer by question ID",
+            task: "Insert question",
             status: "FAILED",
             message: err
           });
         } else {
           return res.status(200).json({
-            task: "Insert answer by question ID",
+            task: "Insert question",
             status: "OK",
             message: "Success",
-            data: { answer_id: dict.newId }
+            data: { question_id: dict.questionid }
           });
         }
       });
