@@ -36,11 +36,33 @@ registerRouter.route('/register').post(upload.single('prof-pic'),(req,res) => {
       return flowCallback();
     },
     (flowCallback)=> {
-      const name = _.get(req,['body', 'name'], null);
-      const email = _.get(req,['body', 'email'], null);
-      if (!validator.validate(email)) return flowCallback('Email not valid');
-      const data = {'prof-pic' : dict.pic_id, 'name' : name, 'email' : email};
-      dict.dbaccount.insertOne(data, (err,result) => {
+      //move req.body to global var
+      dict.username = _.get(req,['body', 'username'], null);
+      dict.email = _.get(req,['body', 'email'], null);
+      const password = _.get(req,['body','password'], null);
+      if (!validator.validate(dict.email)) return flowCallback('Email not valid');
+      dict.data = {'prof-pic' : dict.pic_id, 'username' : dict.username, 'email' : dict.email, 'password' : password};
+      return flowCallback();
+    },
+    (flowCallback)=> {
+      // check the username in database first
+      dict.dbaccount.findOne({'username': dict.username}, (err,result) => {
+        if (err) return flowCallback(err);
+        if (!_.isNil(result)) return flowCallback("Username sudah terdaftar");
+        return flowCallback();
+      })
+    },
+    (flowCallback)=> {
+      //// check the email in database first
+      dict.dbaccount.findOne({'email': dict.email}, (err,result) => {
+        if (err) return flowCallback(err);
+        if (!_.isNil(result)) return flowCallback("Email sudah terdaftar");
+        return flowCallback();
+      })
+    },
+    (flowCallback) => {
+      console.log(dict.data);
+      dict.dbaccount.insertOne(dict.data, (err,result) => {
         if (err) return flowCallback(err);
         dict.accountid = result.insertedId;
         return flowCallback();

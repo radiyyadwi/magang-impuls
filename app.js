@@ -7,6 +7,7 @@ var showQuestionRouter = require('./routes/showQuestionRoutes');
 var postAnswerRouter = require('./routes/postAnswerRoutes');
 var showAnswerRouter = require('./routes/showAnswerRoutes');
 var registerRouter = require('./routes/registerRoutes');
+var loginRouter = require('./routes/loginRoutes');
 
 var port = 3000;
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -16,6 +17,7 @@ app.use(postQuestRouter);
 app.use(showQuestionRouter);
 app.use(postAnswerRouter);
 app.use(showAnswerRouter);
+app.use(loginRouter);
 app.use(registerRouter);
 app.get('/', function (req, res) {
   res.send("Hello");
