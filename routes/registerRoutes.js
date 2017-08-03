@@ -25,11 +25,15 @@ registerRouter.route('/register').post(upload.single('prof-pic'),(req,res) => {
     },
     (flowCallback)=> {
       const pic_path = _.get(req,['file', 'path'], null);
-      dict.dbimage.insertOne({"path" : pic_path}, (err,dataimage) => {
+      if (_.isNil(pic_path)) {
+        dict.pic_id = null;
+      } else {
+        dict.dbimage.insertOne({"path" : pic_path}, (err,dataimage) => {
         if (err) return flowCallback(err);
         dict.pic_id = dataimage.insertedId;
-        return flowCallback();
-      });
+        });
+      }
+      return flowCallback();
     },
     (flowCallback)=> {
       const name = _.get(req,['body', 'name'], null);
