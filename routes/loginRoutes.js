@@ -4,6 +4,7 @@ const _ = require('lodash');
 const mongoClient = require('mongodb').MongoClient;
 const async = require('async');
 const loginRouter = express.Router();
+const crypto = require('crypto');
 
 
 loginRouter.route('/login').get((req, res) => {
@@ -30,6 +31,9 @@ loginRouter.route('/login/authMe').post((req, res) => {
     },
     (flowCallback) =>{
       dict.dbuser = dict.db.collection('account');
+      var hash = crypto.createHmac('sha512','12peJeMaHO021997');
+      hash.update(dict.password);
+      dict.password = hash.digest('hex');
       dict.dbuser.findOne({ username: dict.username, password: dict.password}, (error, results) => {
         if (error) return flowCallback(error);
         if(_.isNil(results)) {

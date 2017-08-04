@@ -1,12 +1,13 @@
-var _ = require('lodash');
-var express = require('express');
-var registerRouter = express.Router();
-var mongoClient = require('mongodb').MongoClient;
+const _ = require('lodash');
+const express = require('express');
+const registerRouter = express.Router();
+const mongoClient = require('mongodb').MongoClient;
 const multer = require('multer');
-var path = require('path');
+const path = require('path');
 const async = require('async');
 const upload = multer({ dest: path.join(__dirname, '../uploads/profile-picture')});
 const validator = require('email-validator');
+const crypto = require('crypto');
 
 registerRouter.route('/register').post(upload.single('prof-pic'),(req,res) => {
   const dict = [];
@@ -39,7 +40,10 @@ registerRouter.route('/register').post(upload.single('prof-pic'),(req,res) => {
       //move req.body to global var
       dict.username = _.get(req,['body', 'username'], null);
       dict.email = _.get(req,['body', 'email'], null);
-      const password = _.get(req,['body','password'], null);
+      var password = _.get(req,['body','password'], null);
+      var hash = crypto.createHmac('sha512','12peJeMaHO021997');
+      hash.update(password);
+      password = hash.digest('hex');
       if (!validator.validate(dict.email)) return flowCallback('Email not valid');
       dict.data = {'prof-pic' : dict.pic_id, 'username' : dict.username, 'email' : dict.email, 'password' : password};
       return flowCallback();
